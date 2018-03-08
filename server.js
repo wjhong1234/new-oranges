@@ -38,8 +38,8 @@ io.on('connection', function(socket){
             msgTime: timeStamp(new Date()), msgAuthor: '_SERVER_'}; 
     } else {
 
-      // If the cookie name is already taken, generate new name
-      if (isUniqueNick(name)) {
+      // If the cookie name is already taken or bad, generate new name
+      if (isUniqueNick(name) && (!badMessage(newName))) {
         people[socket.id] = name; 
       } else {
         people[socket.id] = generateRandomUsername();
@@ -80,19 +80,25 @@ io.on('connection', function(socket){
   // ---ON MESSAGE SENT---
   socket.on('message', function(msg){
 
-    // Creates message object
-    note = {msgText: msg, msgTime: timeStamp(new Date()), msgAuthor: people[socket.id]};
+    // Checks if input is a script
+    if (!badMessage(msg)) {
+      // Creates message object
+      note = {msgText: msg, msgTime: timeStamp(new Date()), msgAuthor: people[socket.id]};
 
-    // Emits the message to clients and pushes to log
-    io.emit('message', note);
-    pushMessage(note);
+      // Emits the message to clients and pushes to log
+      io.emit('message', note);
+      pushMessage(note);
+    } else {
+      socket.emit('message', {msgText: '[ERROR] That\'s rude',
+                              msgTime: timeStamp(new Date()), msgAuthor: '_ERROR_'});
+    }
   });
 
   // ---ON NAME CHANGE---
   socket.on('nameChange', function(newName) {
 
     // Checks if name is unique
-    if (isUniqueNick(newName)) {
+    if (isUniqueNick(newName) && (!badMessage(newName))) {
 
       // Tells everyone name change happened
       note = {msgText: people[socket.id] + ' has changed their name to ' + newName,
@@ -109,7 +115,10 @@ io.on('connection', function(socket){
       io.emit('updateHistory', history);
 
     } else {
-      if (newName == '_SERVER_' || newName == '_ERROR_') {
+      if (badMessage(newName)) {
+        socket.emit('message', {msgText: '[ERROR] You think you\'re sneaky?',
+                              msgTime: timeStamp(new Date()), msgAuthor: '_ERROR_'});
+      } else if (newName == '_SERVER_' || newName == '_ERROR_') {
         socket.emit('message', {msgText: '[ERROR] Name cannot be "' + newName + '"',
                                 msgTime: timeStamp(new Date()), msgAuthor: '_ERROR_'});
       } else {
@@ -121,11 +130,18 @@ io.on('connection', function(socket){
 
   // ---ON COLOUR CHANGE---
   socket.on('colourChange', function(newColour) {
-    colour[socket.id] = ((newColour[0] == '#') ? newColour :  ('#' + newColour));
 
-    io.emit('updateColour', colour, people);
-    io.emit('updatePeople', people);
-    io.emit('updateHistory', history);
+    // Checks if input is script
+    if (!badMessage(newName)) {
+      colour[socket.id] = ((newColour[0] == '#') ? newColour :  ('#' + newColour));
+
+      io.emit('updateColour', colour, people);
+      io.emit('updatePeople', people);
+      io.emit('updateHistory', history);
+    } else {
+      socket.emit('message', {msgText: '[ERROR] Stop it',
+                              msgTime: timeStamp(new Date()), msgAuthor: '_ERROR_'});
+    }
   });
 
 });
@@ -186,4 +202,15 @@ function pushMessage(message) {
   }
 
   history.push(message);
+}
+
+// Checks if the input is a script (returns true for script)
+function badMessage(input) {
+  let scripts = new RegExp('<script[\\s\\S]*?>[\\s\\S]*?<\\/script>');
+
+  if (input.match(scripts)) {
+    return true;
+  } else {
+    return false;
+  }
 }
