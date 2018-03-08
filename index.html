@@ -1,0 +1,63 @@
+
+<!doctype html>
+<html>
+  <head>
+    <!-- <title>Socket.IO chat</title> -->
+    <title>ChatBox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,500" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Yantramanav:300,500" rel="stylesheet">
+
+    <link href="https://use.fontawesome.com/releases/v5.0.7/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/public/styles.css">
+  </head>
+  <body>
+
+    <!-- Document -->
+    <div class="row container-fluid">
+
+      <!-- Sidebar -->
+      <nav id="sidebar" class="col-sm-3 container-fluid">
+
+        <!-- Head Box -->
+        <div class="jumbotron">
+          <h2 class="title">ChatBox</h2>
+          <div class="subtitle">
+            <h3 id="user">username</h3>
+            <h3><span id="count">0</span> users online</h3>
+          </div>
+        </div>
+
+        <!-- Users Online List -->
+        <div>
+          <h4 id="userlist">Online</h4>
+          <div id="sidebarList">
+            <ul id="people" class="list-group"></ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Entire Right Screen -->
+      <div id="main" class="col-sm-9 container-fluid">
+
+        <!-- Message Area -->
+        <div id="papi">
+          <ul id="messages" class="list-group"></ul>
+        </div>
+
+        <!-- Input Area -->
+        <form action="" class="input-group input-group-lg">
+          <input id="m" class="form-control" autocomplete="off" placeholder="Write your message"/>
+          <button class="btn"><i class="far fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
+
+  </body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script type="text/javascript" src="/public/index.js"></script>
+</html>
