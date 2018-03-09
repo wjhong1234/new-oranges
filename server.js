@@ -39,7 +39,7 @@ io.on('connection', function(socket){
     } else {
 
       // If the cookie name is already taken or bad, generate new name
-      if (isUniqueNick(name) && (!badMessage(newName))) {
+      if (isUniqueNick(name) && (!badMessage(name))) {
         people[socket.id] = name; 
       } else {
         people[socket.id] = generateRandomUsername();
@@ -108,6 +108,13 @@ io.on('connection', function(socket){
       socket.emit('updateName', newName);
       pushMessage(note);
 
+      // Change the names in messages of the current user to the new name
+      for (let page of history) {
+        if (page['msgAuthor'] == people[socket.id]) {
+          page['msgAuthor'] = newName;
+        }
+      }
+
       // Updates name, colour, peoplelist, and chat log
       people[socket.id] = newName;
       io.emit('updateColour', colour, people);
@@ -132,7 +139,7 @@ io.on('connection', function(socket){
   socket.on('colourChange', function(newColour) {
 
     // Checks if input is script
-    if (!badMessage(newName)) {
+    if (!badMessage(newColour)) {
       colour[socket.id] = ((newColour[0] == '#') ? newColour :  ('#' + newColour));
 
       io.emit('updateColour', colour, people);
